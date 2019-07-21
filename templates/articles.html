@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}
+Articles
+{% endblock %}
+{% block body_block %}
+	<h1 class="text-center">Kushat</h1>
+	<div class="tileitems_box">
+		<div class="wrp">
+			<div class="row panel-group tile_list">
+				{% if articles %}
+				{% for article in articles %}
+				<div class="col-sm-3 tile_item panel market_main">
+					<a href="{{ url_for('article', art_id=article.id) }}" class="collapsed">
+						<div class="title over">
+							{{ article.author }}<br/>
+							{{ article.content }}<br/>
+							{{ article.created }}<br/>
+							{{ article.updated }}<br/>
+							{{ article.id }}<br/>
+						</div>
+					</a>
+				</div>
+				{% endfor %}
+				{% endif %}
+				<div class="col-sm-3 tile_item panel market_main">
+					<form id="add_form" method="post" action="/articles">
+						<ul class="form_list">
+							<li class="form-group">
+								<label class="text-muted">Автор</label>
+								<input class="form-control" required="required" autofocus="autofocus" type="text" name="author" />
+							</li>
+							<li class="form-group">
+								<label class="text-muted">Текст</label>
+								<input class="form-control" required="required" autofocus="autofocus" type="text" name="content" />
+							</li>							
+							<li class="form-group">{{ result }}</li>
+							
+							<input class="btn btn-primary log_submit" type="submit" value="Добавить" />
+						</ul>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

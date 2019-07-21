@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+	{% block title %}
+	{ article.id }
+	{% endblock %}
+	{% block body_block %}
+	<div class="box">
+		<article class="product_full">
+			<div class="wrp">
+				<div class="row">
+					<div class="col-sm-6">
+						<h1 class="title">Информация о записи</h1>
+						<div class="text description">
+							<table class="table">
+								<tbody>
+									<tr>
+										<th scope="col">Автор</th>
+										<th scope="col">{{ article.author }}</th>
+									</tr>
+									<tr>
+										<th scope="col">Запись</th>
+										<th scope="col">{{ article.category }}</th>
+									</tr>
+									<tr>
+										<th scope="col">Дата обновления</th>
+										<th scope="col">{{ article.updated }}</th>
+									</tr>	
+									<tr>
+										<th scope="col">Дата создания</th>
+										<th scope="col">{{ article.created }}</th>
+									</tr>										
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="product_img">
+							<div class="product_img_big">
+								<div class="tab-content">
+									<div class="tab-pane active">
+										<img src="{{ url_for('static', filename='kaef.jpg') }}">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+	{% endblock %}
