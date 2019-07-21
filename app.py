@@ -4,7 +4,6 @@ from config import Config
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy as sqla
 import os
-from forms import ArticleForm
 from flask_marshmallow import Marshmallow
 from werkzeug.exceptions import BadRequest, NotFound
 
@@ -45,7 +44,6 @@ articles_schema = ArticleSchema(many=True, strict=True)
 #Functions
 @app.route('/articles', methods=['GET', 'POST'])
 def articles():
-	form = ArticleForm()
 	if request.method == 'POST':
 		# author = request.form['author']
 		# content = request.form['content']
