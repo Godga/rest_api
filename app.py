@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy as sqla
 import os
 from forms import ArticleForm
 from flask_marshmallow import Marshmallow
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 
 
 app = Flask(__name__)
@@ -40,6 +40,7 @@ class ArticleSchema(ma.Schema):
 
 article_schema = ArticleSchema(strict=True)
 articles_schema = ArticleSchema(many=True, strict=True)
+
 
 #Functions
 @app.route('/articles', methods=['GET', 'POST'])
@@ -98,9 +99,16 @@ def article(id):
 		db.session.commit()
 		return jsonify({'message':'success'})	
 
-@app.errorhandler(werkzeug.exceptions.BadRequest)
+
+@app.errorhandler(BadRequest)
 def handle_bad_request(e):
     return jsonify({'message':'Very bad request'}), 400
+	
+	
+@app.errorhandler(NotFound)
+def handle_not_found(e):
+    return jsonify({'message':"Page doesn't exist"}), 404
+
 
 if __name__ == '__main__':
 	app.run(debug=True)
