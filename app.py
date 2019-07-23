@@ -64,7 +64,7 @@ def article(id):
 		return jsonify({'message':"Couldn't found a article with id={}.".format(id)}), 404
 	if request.method == 'GET':
 		return jsonify([article.serialize])
-	if request.method == 'PUT' or request.method == 'PATCH':
+	if request.method in ['PUT', 'PATCH']:
 		if article.author != request.json['author']:
 			article.author = request.json['author']
 		if article.content != request.json['content']:
