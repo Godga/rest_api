@@ -4,17 +4,13 @@ from config import Config
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy as sqla
 import os
-from flask_marshmallow import Marshmallow
 from werkzeug.exceptions import BadRequest, NotFound
-
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config.from_object(Config)
-#app.config['SQLALCHEMY_DATABASE_URL'] = 'sqlite:///' + os.path.join(basedir, 'rest.db')
-#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = sqla(app)
-ma = Marshmallow(app)
 
 #db
 class Article(db.Model):
@@ -30,29 +26,23 @@ class Article(db.Model):
 		self.author = author
 		self.content = content
 		self.created = created
-		self.updated = updated
-		
-#Schema
-class ArticleSchema(ma.Schema):
-	class Meta:
-		fields = ('id', 'author', 'content', 'created', 'updated')
+		self.updated = updated		
 
-article_schema = ArticleSchema(strict=True)
-articles_schema = ArticleSchema(many=True, strict=True)
-
+	@property
+	def serialize(self):
+		return {'id':self.id, 'author':self.author, 'content':self.content, 'created':dump_datetime(self.created), 'updated':dump_datetime(self.updated)}
 
 #Functions
+
+def dump_datetime(value):
+	if value is None:
+		return None
+	return value.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 @app.route('/articles', methods=['GET', 'POST'])
 def articles():
 	if request.method == 'POST':
-		# author = request.form['author']
-		# content = request.form['content']
-		# time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-		# isotime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-		# art = Article(None, author, content, isotime, isotime)
-		# db.session.add(art)
-		# db.session.commit()
-		# return redirect(url_for('articles'))
 		author = request.json['author']
 		content = request.json['content']
 		time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
@@ -62,40 +52,33 @@ def articles():
 		db.session.commit()
 		return article_schema.jsonify(art)
 	elif request.method == 'GET':
-		# isotime = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
 		art_list = None
 		if Article.query.all():
 			art_list = Article.query.all()
-			result = articles_schema.dump(art_list)
-		# content={'articles':art_list, 'form':form}
-		# resp = make_response(render_template('articles.html', **content))
-		# return resp
-		return jsonify(result.data)
+		return jsonify([a.serialize for a in art_list])
 	
 
 @app.route('/articles/<id>', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
 def article(id):
-	if not Article.query.get(id):
+	article = Article.query.get(id)
+	if not article:
 		return jsonify({'message':"Couldn't found a article with id={}.".format(id)}), 404
 	if request.method == 'GET':
-		article = Article.query.get(id)
-		return article_schema.jsonify(article)
+		return jsonify([article.serialize])
 	if request.method == 'PUT' or request.method == 'PATCH':
-		article = Article.query.get(id)
 		if article.author != request.json['author']:
 			article.author = request.json['author']
 		if article.content != request.json['content']:
 			article.content = request.json['content']
-		time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-		isotime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-		article.updated = isotime
+		#time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+		#isotime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
+		article.updated = datetime.now()
 		db.session.commit()
-		return article_schema.jsonify(article)
+		return jsonify([article.serialize])
 	if request.method == 'DELETE':
-		article = Article.query.get(id)
 		db.session.delete(article)
 		db.session.commit()
-		return jsonify({'message':'success'})	
+		return jsonify([article.serialize])
 
 
 @app.errorhandler(BadRequest)
