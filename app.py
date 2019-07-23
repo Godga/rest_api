@@ -45,8 +45,7 @@ def articles():
 	if request.method == 'POST':
 		author = request.json['author']
 		content = request.json['content']
-		time = datetime.now()
-		article = Article(None, author, content, time, time)
+		article = Article(None, author, content, datetime.now(), datetime.now())
 		db.session.add(article)
 		db.session.commit()
 		return jsonify([article.serialize])
