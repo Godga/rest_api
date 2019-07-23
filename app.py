@@ -37,7 +37,7 @@ class Article(db.Model):
 def dump_datetime(value):
 	if value is None:
 		return None
-	return value.strftime("%Y-%m-%dT%H:%M:%SZ")
+	return value.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 @app.route('/articles', methods=['GET', 'POST'])
@@ -45,12 +45,11 @@ def articles():
 	if request.method == 'POST':
 		author = request.json['author']
 		content = request.json['content']
-		time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
-		isotime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-		art = Article(None, author, content, isotime, isotime)
-		db.session.add(art)
+		time = datetime.now()
+		article = Article(None, author, content, time, time)
+		db.session.add(article)
 		db.session.commit()
-		return article_schema.jsonify(art)
+		return jsonify([article.serialize])
 	elif request.method == 'GET':
 		art_list = None
 		if Article.query.all():
